@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: JEgPvIAstUmNQAV8wiugJVY3yOQeUwyjdpH6XZnC6NG1BtOpxfW5Vwsaq1f1MUCh3s19j+PsTtD+F07GiyNJEBCejv5on9lojj4NX0oJ+f5UAGjFDiUmm5tk7zE4D3vCmIgE/kWNN6v8n6StP+A4bTCg0rdCRbU4LjShyNaIo0oCBX2Qw4QEgGcP6MxGfdbuvChOqs4dynhZtQQdkUFXYhLBmFP1lyWg6YEOIAqZ6lp+R1hbs7zjniKfz8uA6Y10q7td4Kpj+//dsC4D0zk2EPNYOKLrcReOM94HEtfbYZHE4C+bJUY6tyedUEbk1QlNt0SXuFZNV9jbHqTK10GHyiSz4yrbBIfMcK+osj3VdhbKDuDBMeIvlLkUz0T5SEFxdvWtqp07BHuu68QM5dGsFZzPztQOE9YBxhnysHhUUkPWov2SBMUpeOFmOIlo8frP90I0DTXmY5t/SL+283F20f3lBmQ+bHFXxQgC86y0P4IiEDJEEUuEoUw2wcD1L7AlgqkCPj+zcozIXubnHRo45+tKFRq+Yq7QWq0374dOvs7+Q+kY4ymBI8IyAFKlLC22LYC60x1MIGm3O9P6Qb9FypeBrJS33YQOcBvSppAH1QfSIOtufWZwtUBQQ7fiQN5IyyxwH4aL2QIlqnXpvLkTpHl+OAGoxIvfNWmD8lcT4Zo=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Memoirs-of-the-Court-of-Marie-Antoinette-Queen-of-France-Volume-6--13-Being-the-Historic-Memoi__3889
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
